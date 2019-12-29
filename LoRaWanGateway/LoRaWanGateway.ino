@@ -1,5 +1,5 @@
 #include <SystemClock.h>
-SystemClock* sysclock = NULL; // mak shure to make it tic at least once in a loop
+SystemClock* sysclock = NULL; // make shure it tics at least once in a loop
 
 #include "LoRaWanGateway.h"
 LoRaWanGateway* loRaWanGateway = NULL;

@@ -21,8 +21,8 @@ class AccessPoint {
 	void setup() {
 		Serial.println(F("Starting Access Point ..."));
 
-		uint32_t id = ESP.getChipId();
-		this->ssid = "pulsartronic.com " + String(id);
+		// uint32_t id = ESP.getChipId();
+		this->ssid = "LoRa WAN Gateway";
 		this->pass = "12345678";
 
 		this->readFile();
