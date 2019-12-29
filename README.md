@@ -1,6 +1,4 @@
-# LoRaWANGatewaySC
-
-LoRa WAN Single Channel Gateway for WeMos ESP8266 Arduino
+# LoRa WAN Single Channel Gateway for WeMos ESP8266 Arduino
 
 Instructions on how to make it work can be found here https://pulsartronic.com/blog/electronics/lorawan
 
