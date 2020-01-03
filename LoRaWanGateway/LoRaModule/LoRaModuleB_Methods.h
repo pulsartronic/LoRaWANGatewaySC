@@ -13,6 +13,7 @@ void fromJSON(LoRaModuleB* loRaModule, JsonObject lora) {
 	if (lora.containsKey("hop")) loRaModule->hop = (bool) (int) lora["hop"];
 	if (lora.containsKey("sf")) loRaModule->sf = (sf_t) (int) lora["sf"];
 	if (lora.containsKey("ch")) loRaModule->ch = (int) lora["ch"];
+	if (lora.containsKey("pl")) loRaModule->ch = (int) lora["pl"];
 }
 
 DynamicJsonDocument JSON(LoRaModuleB* loRaModule) {
@@ -22,6 +23,7 @@ DynamicJsonDocument JSON(LoRaModuleB* loRaModule) {
 	lora["hop"] = (int) loRaModule->hop;
 	lora["sf"] = (int) loRaModule->sf;
 	lora["ch"] = (int) loRaModule->ch;
+	lora["pl"] = (int) loRaModule->pl;
 	return doc;
 }
 

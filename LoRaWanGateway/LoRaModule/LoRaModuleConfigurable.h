@@ -30,6 +30,7 @@ class LoRaModuleConfigurable : public Configurable {
 	String ping() {
 		String lora = "{";
 		lora += "\"cad\":" + String(this->loRaModule->cad);
+		lora += ",\"pl\":" + String(this->loRaModule->pl);
 		lora += ",\"ch\":" + String(this->loRaModule->ch);
 		lora += ",\"hop\":" + String(this->loRaModule->hop);
 		lora += ",\"sf\":" + String(this->loRaModule->sf);

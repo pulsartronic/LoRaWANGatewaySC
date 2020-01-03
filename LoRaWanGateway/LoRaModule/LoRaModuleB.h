@@ -24,7 +24,8 @@ class LoRaModuleB {
 	// device and also connect enable dio1 to detect this state. 
 	bool cad = false;
 	bool hop = false;
-	uint8_t ch = (uint8_t) 1;
+	uint8_t pl = (uint8_t) 4; // plan
+	uint8_t ch = (uint8_t) 1; // channel
 	// Spreading factor (SF7 - SF12)
 	sf_t sf = SF7;
 

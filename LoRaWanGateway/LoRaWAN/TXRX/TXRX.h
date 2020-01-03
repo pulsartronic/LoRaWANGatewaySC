@@ -151,7 +151,7 @@ int sendPacket(LoRaWAN* loRaWAN, uint8_t *buf, uint8_t length) {
 		
 			//Serial.print(F(" strict=")); Serial.print(_STRICT_1CH);
 			Serial.print(F(" datr=")); Serial.println(datr);
-			Serial.print(F(" Rfreq=")); Serial.print(freq); Serial.print(F(", Request=")); Serial.print(freq); Serial.print(F(" ->")); Serial.println(LoraDown.fff);
+			// Serial.print(F(" Rfreq=")); Serial.print(freq); Serial.print(F(", Request=")); Serial.print(freq); Serial.print(F(" ->")); Serial.println(LoraDown.fff);
 			Serial.print(F(" sf  =")); Serial.print(atoi(datr+2)); Serial.print(F(" ->")); Serial.println(LoraDown.sfTx);
 		
 			Serial.print(F(" modu=")); Serial.println(modu);
@@ -318,7 +318,8 @@ int buildPacket(LoRaWAN* loRaWAN, uint32_t tmst, uint8_t *buff_up, struct LoraUp
 	}
 	//#endif
 	buff_index += j;
-	ftoa((double)freq/1000000,cfreq,6);					// XXX This can be done better
+	double freq = (double) FREQS[loRaWAN->loRaModule->pl][loRaWAN->loRaModule->ch];
+	ftoa(freq/1000000, cfreq, 6);					// XXX This can be done better
 	j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"chan\":%1u,\"rfch\":%1u,\"freq\":%s", 0, 0, cfreq);
 	buff_index += j;
 	memcpy((void *)(buff_up + buff_index), (void *)",\"stat\":1", 9);

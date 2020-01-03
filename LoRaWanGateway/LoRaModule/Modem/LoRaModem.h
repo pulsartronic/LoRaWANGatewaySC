@@ -69,67 +69,62 @@ long txDelay = 0x00; // tx delay time on top of server TMST
 // NOTE: This means you have to specify at least 3 frequencies here for the single
 //	channel gateway to work.
 
-#if _LFREQ==868
 // This the the EU868 format as used in most of Europe
 // It is also the default for most of the single channel gateway work.
-int freqs [] = { 
-	868100000, 									// Channel 0, 868.1 MHz/125 primary
-	868300000, 									// Channel 1, 868.3 MHz mandatory
-	868500000, 									// Channel 2, 868.5 MHz mandatory
-	867100000, 									// Channel 3, 867.1 MHz Optional
-	867300000, 									// Channel 4, 867.3 MHz Optional
-	867500000,  								// Channel 5, 867.5 MHz Optional
-	867700000,  								// Channel 6, 867.7 MHz Optional 
-	867900000,  								// Channel 7, 867.9 MHz Optional 
-	868800000,   								// Channel 8, 868.9 MHz/125 Optional
-	869525000									// Channel 9, 869.5 MHz/125 for RX2 responses SF9(10%)
+int EU868 [] = { 
+	868100000, // Channel 0, 868.1 MHz/125 primary
+	868300000, // Channel 1, 868.3 MHz mandatory
+	868500000, // Channel 2, 868.5 MHz mandatory
+	867100000, // Channel 3, 867.1 MHz Optional
+	867300000, // Channel 4, 867.3 MHz Optional
+	867500000, // Channel 5, 867.5 MHz Optional
+	867700000, // Channel 6, 867.7 MHz Optional 
+	867900000, // Channel 7, 867.9 MHz Optional 
+	868800000, // Channel 8, 868.9 MHz/125 Optional
+	869525000  // Channel 9, 869.5 MHz/125 for RX2 responses SF9(10%)
 	// TTN defines an additional channel at 869.525Mhz using SF9 for class B. Not used
 };
-#elif _LFREQ==433
+
 // The following 3 frequencies should be defined/used in an EU433 
 // environment.
-int freqs [] = {
-	433175000, 									// Channel 0, 433.175 MHz/125 primary
-	433375000, 									// Channel 1, 433.375 MHz primary
-	433575000, 									// Channel 2, 433.575 MHz primary
-	433775000, 									// Channel 3, 433.775 MHz primary
-	433975000, 									// Channel 4, 433.975 MHz primary
-	434175000, 									// Channel 5, 434.175 MHz primary
-	434375000, 									// Channel 6, 434.375 MHz primary
-	434575000, 									// Channel 7, 434.575 MHz primary
-	434775000 									// Channel 8, 434.775 MHz primary
+int EU433 [] = {
+	433175000, // Channel 0, 433.175 MHz/125 primary
+	433375000, // Channel 1, 433.375 MHz primary
+	433575000, // Channel 2, 433.575 MHz primary
+	433775000, // Channel 3, 433.775 MHz primary
+	433975000, // Channel 4, 433.975 MHz primary
+	434175000, // Channel 5, 434.175 MHz primary
+	434375000, // Channel 6, 434.375 MHz primary
+	434575000, // Channel 7, 434.575 MHz primary
+	434775000  // Channel 8, 434.775 MHz primary
 };
-#elif _LFREQ==915
+
 // US902=928
 // AU915-928
-int freqs [] = {
+int US902 [] = {
 	// Uplink
-	903900000, 									// Channel 0, SF7BW125 to SF10BW125 primary
-	904100000, 									// Ch 1, SF7BW125 to SF10BW125
-	904300000, 									// Ch 2, SF7BW125 to SF10BW125
-	904500000, 									// Ch 3, SF7BW125 to SF10BW125
-	904700000, 									// Ch 4, SF7BW125 to SF10BW125
-	904900000, 									// Ch 5, SF7BW125 to SF10BW125
-	905100000, 									// Ch 6, SF7BW125 to SF10BW125
-	905300000, 									// Ch 7, SF7BW125 to SF10BW125
-	904600000 									// Ch 8, SF8BW500 
+	903900000, // Channel 0, SF7BW125 to SF10BW125 primary
+	904100000, // Ch 1, SF7BW125 to SF10BW125
+	904300000, // Ch 2, SF7BW125 to SF10BW125
+	904500000, // Ch 3, SF7BW125 to SF10BW125
+	904700000, // Ch 4, SF7BW125 to SF10BW125
+	904900000, // Ch 5, SF7BW125 to SF10BW125
+	905100000, // Ch 6, SF7BW125 to SF10BW125
+	905300000, // Ch 7, SF7BW125 to SF10BW125
+	904600000  // Ch 8, SF8BW500
 	// Downlink
-	// We should specify downlink frequencies here											
-												// SFxxxBW500
+	// 923.3 - SF7BW500 to SF12BW500
+	// 923.9 - SF7BW500 to SF12BW500
+	// 924.5 - SF7BW500 to SF12BW500
+	// 925.1 - SF7BW500 to SF12BW500
+	// 925.7 - SF7BW500 to SF12BW500
+	// 926.3 - SF7BW500 to SF12BW500
+	// 926.9 - SF7BW500 to SF12BW500
+	// 927.5 - SF7BW500 to SF12BW500
+	// We should specify downlink frequencies here	// SFxxxBW500
 };
-#else
-int freqs [] = {
-	// Print an Error, Not supported
-#error "Sorry, but your frequency plan is not supported"
-};
-#endif
-uint32_t  freq = freqs[0];
-// uint8_t	 ifreq = 0;								// Channel Index
 
-
-
-// Set the structure for spreading factor
-// enum sf_t { SF6=6, SF7, SF8, SF9, SF10, SF11, SF12 };
+int* FREQS[] = {0, 0, 0, 0, EU868, 0, 0, 0, US902};
 
 // The state of the receiver. See Semtech Datasheet (rev 4, March 2015) page 43
 // The _state is of the enum type (and should be cast when used as a number)
@@ -802,8 +797,8 @@ void hop(LoRaModuleB* loRaModule) {
 		
 	// 3. Set frequency based on value in freq		
 	loRaModule->ch = (loRaModule->ch + 1) % NUM_HOPS; // Increment the freq round robin
-	freq = freqs[loRaModule->ch];
-	setFreq(freqs[loRaModule->ch]);
+	uint32_t freq = (uint32_t) FREQS[loRaModule->pl][loRaModule->ch];
+	setFreq(freq);
 
 	// 4. Set spreading Factor
 	loRaModule->sf = SF7; // Starting the new frequency 
@@ -1163,7 +1158,8 @@ void rxLoraModem(LoRaModuleB* loRaModule) {
 	opmode(OPMODE_STANDBY); // CAD set 0x01 to 0x00
 	
 	// 3. Set frequency based on value in freq
-	setFreq(freqs[loRaModule->ch]); // set to 868.1MHz
+	int cfreq = FREQS[loRaModule->pl][loRaModule->ch];
+	setFreq(cfreq); // set to 868.1MHz
 
 	// 4. Set spreading Factor and CRC
 	setRate(loRaModule, loRaModule->sf, 0x04);
@@ -1248,7 +1244,8 @@ void cadScanner(LoRaModuleB* loRaModule) {
 	opmode(OPMODE_STANDBY); // Was old value
 	
 	// 3. Set frequency based on value in ifreq // XXX New, might be needed when receiving down
-	setFreq(freqs[loRaModule->ch]);
+	int cfreq = FREQS[loRaModule->pl][loRaModule->ch];
+	setFreq(cfreq);
 
 	// For every time we start the scanner, we set the SF to the begin value
 	//sf = SF7; // XXX 180501 Not by default
@@ -1316,7 +1313,7 @@ void initLoraModem(LoRaModuleB* loRaModule) {
 	
 	// 3. Set frequency based on value in freq
 	//ifreq = 0; // XXX 180326
-	freq=freqs[loRaModule->ch];
+	uint32_t freq = (uint32_t) FREQS[loRaModule->pl][loRaModule->ch];
 	setFreq(freq); // set to 868.1MHz or the last saved frequency
 	
 	// 4. Set spreading Factor
