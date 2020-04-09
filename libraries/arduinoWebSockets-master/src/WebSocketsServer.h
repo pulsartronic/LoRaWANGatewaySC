@@ -31,11 +31,6 @@
 #define WEBSOCKETS_SERVER_CLIENT_MAX (5)
 #endif
 
-class WebSocketEventReceiver {
-	public:
-	virtual void onEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) = 0;
-};
-
 class WebSocketsServer : protected WebSockets {
   public:
 
@@ -61,7 +56,6 @@ class WebSocketsServer : protected WebSockets {
 #endif
 
     void onEvent(WebSocketServerEvent cbEvent);
-    WebSocketEventReceiver* webSocketEventReceiver = NULL;
 
     void onValidateHttpHeader(
         WebSocketServerHttpHeaderValFunc validationFunc,
@@ -183,9 +177,6 @@ class WebSocketsServer : protected WebSockets {
     virtual void runCbEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
         if(_cbEvent) {
             _cbEvent(num, type, payload, length);
-        }
-        if (NULL != this->webSocketEventReceiver) {
-            this->webSocketEventReceiver->onEvent(num, type, payload, length);
         }
     }
 

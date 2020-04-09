@@ -10,7 +10,7 @@ template <class T> class KeyValue {
 		delete[] this->key;
 	}
 
-	KeyValue(char* key, T* value) {
+	KeyValue(const char* key, T* value) {
 		int length = strlen(key);
 		this->key = new char[length + 1];
 		memcpy(this->key, key, length + 1);
@@ -20,11 +20,11 @@ template <class T> class KeyValue {
 
 template <class T> class KeyValueMap {
 	public:
-	unsigned int length = 0u;
+	uint16_t length = 0u;
 	KeyValue<T>** keyValues = new KeyValue<T>*[0];
 
 	virtual ~KeyValueMap() {
-		for (int i = 0; i < this->length; i++) {
+		for (uint16_t i = 0u; i < this->length; i++) {
 			KeyValue<T>* keyValue = this->keyValues[i];
 			delete keyValue;
 		}
@@ -35,9 +35,9 @@ template <class T> class KeyValueMap {
 		
 	}
 
-	KeyValue<T>* key(char* key) {
+	KeyValue<T>* key(const char* key) {
 		KeyValue<T>* keyValue = NULL;
-		for (unsigned int i = 0u; (i < this->length) && (NULL == keyValue); i++) {
+		for (uint16_t i = 0u; (i < this->length) && (NULL == keyValue); i++) {
 			KeyValue<T>* skeyValue = this->keyValues[i];
 			if (NULL != skeyValue) {
 				// TODO:: binary search
@@ -49,7 +49,12 @@ template <class T> class KeyValueMap {
 		return keyValue;
 	}
 
-	void set(char* key, T* value) {
+	void set(String& key, T* value) {
+		const char* ckey = key.c_str();
+		this->set(ckey, value);
+	}
+
+	void set(const char* key, T* value) {
 		KeyValue<T>* skeyValue = this->key(key);
 		if (NULL != skeyValue) {
 			skeyValue->value = value;
@@ -65,7 +70,7 @@ template <class T> class KeyValueMap {
 		}
 	}
 
-	T* get(char* key) {
+	T* get(const char* key) {
 		T* value = NULL;
 		KeyValue<T>* skeyValue = this->key(key);
 		if (NULL != skeyValue) {

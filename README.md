@@ -4,8 +4,16 @@ Instructions on how to make it work can be found here https://pulsartronic.com/b
 
 
 # Contribute
-An open source project is a forever Working In Progress. Feel free to be constructive.
+An open source project is a forever Work In Progress. Feel free to be constructive.
 
+RFM default configuration is in libray/RFM/RFM.h you should change it based on your hardware
+before upload, otherwise you can change it through the web interface
+
+LoRaWAN default configuration is in library/WAN/WAN.h
+
+# TODO
+There are many todo's, the biggest is: DOWNLINKS are not scheduled, they are sent immediately as
+soon as the gateway receives them. It would be a nice contribution :) it is in library/WAN.cpp
 
 # Credits
 
@@ -15,8 +23,8 @@ https://github.com/spaniakos/AES
 JSON library for Arduino and embedded C++. Simple and efficient.  
 https://github.com/bblanchon/ArduinoJson
 
-Version 5 of Single Channel LoRa Gateway  
-https://github.com/things4u/ESP-1ch-Gateway-v5.0
+An Arduino library for sending and receiving data using LoRa radios.
+https://github.com/sandeepmistry/arduino-LoRa
 
 WebSocket Server and Client for Arduino based on RFC6455  
 https://github.com/Links2004/arduinoWebSockets
@@ -24,5 +32,4 @@ https://github.com/Links2004/arduinoWebSockets
 Base64 encoder/decoder for arduino  
 https://github.com/Densaugeo/base64_arduino
 
-A base64 library for the arduino platform, written in C  
-https://github.com/adamvr/arduino-base64
+
