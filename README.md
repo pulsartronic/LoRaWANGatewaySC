@@ -24,7 +24,7 @@ https://github.com/spaniakos/AES
 JSON library for Arduino and embedded C++. Simple and efficient.  
 https://github.com/bblanchon/ArduinoJson
 
-An Arduino library for sending and receiving data using LoRa radios.
+An Arduino library for sending and receiving data using LoRa radios.  
 https://github.com/sandeepmistry/arduino-LoRa
 
 WebSocket Server and Client for Arduino based on RFC6455  
