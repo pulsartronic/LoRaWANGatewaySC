@@ -7,9 +7,9 @@ Instructions on how to make it work can be found here https://pulsartronic.com/b
 An open source project is a forever Work In Progress. Feel free to be constructive.
 
 RFM default configuration is in libraries/RFM/RFM.h you should change it based on your hardware
-before upload, otherwise you can change it through the web interface
+before upload, although you can later change it through the web interface
 
-LoRaWAN default configuration is in library/WAN/WAN.h
+LoRaWAN default configuration is in libraries/WAN/WAN.h
 
 # TODO
 There are many todo's, the biggest is: DOWNLINKS are not scheduled, they are sent immediately as
