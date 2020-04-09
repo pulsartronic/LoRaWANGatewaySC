@@ -6,14 +6,15 @@ Instructions on how to make it work can be found here https://pulsartronic.com/b
 # Contribute
 An open source project is a forever Work In Progress. Feel free to be constructive.
 
-RFM default configuration is in libray/RFM/RFM.h you should change it based on your hardware
+RFM default configuration is in libraries/RFM/RFM.h you should change it based on your hardware
 before upload, otherwise you can change it through the web interface
 
 LoRaWAN default configuration is in library/WAN/WAN.h
 
 # TODO
 There are many todo's, the biggest is: DOWNLINKS are not scheduled, they are sent immediately as
-soon as the gateway receives them. It would be a nice contribution :) it is in library/WAN.cpp
+soon as the gateway receives them. It would be a nice contribution :) it is in libraries/WAN/WAN.cpp
+around the line 270
 
 # Credits
 
