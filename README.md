@@ -1,7 +1,6 @@
 # LoRa WAN Single Channel Gateway for WeMos ESP8266 Arduino
 
-Instructions on how to make it work can be found here https://pulsartronic.com/blog/electronics/lorawan
-
+Instructions on how to make it work can be found here https://www.hackster.io/pulsartronic/lorawan-gateway-esp8266-rfm95-arduino-4914a8
 
 # Contribute
 An open source project is a forever Work In Progress. Feel free to be constructive.
