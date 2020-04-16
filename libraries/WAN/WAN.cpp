@@ -69,7 +69,7 @@ void WAN::emitDownlinks() {
 	for (uint32_t i = 0ul; i < this->schedules->length; i++) {
 		Scheduled* scheduled = this->schedules->get(i);
 		uint32_t now = micros();
-		if (now <= scheduled->tmst) {
+		if (now >= scheduled->tmst) {
 			indices->add(i);
 			this->rfm->apply(&scheduled->rfData->settings);
 			this->rfm->send(scheduled->rfData->packet);
