@@ -11,9 +11,7 @@ before upload, although you can later change it through the web interface
 LoRaWAN default configuration is in libraries/WAN/WAN.h
 
 # TODO
-There are many todo's, the biggest is: DOWNLINKS are not scheduled, they are sent immediately as
-soon as the gateway receives them. It would be a nice contribution :) it is in libraries/WAN/WAN.cpp
-around the line 270
+There are many todo's, the biggest is: DOWNLINKS that arrive too late are emitted anyways, TTN sometimes takes too long to send a downlink almost always. If you want to change this behaviour, you can find it in libraries/WAN/WAN.cpp around the line 270
 
 # Credits
 

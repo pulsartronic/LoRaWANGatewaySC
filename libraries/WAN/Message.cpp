@@ -26,9 +26,9 @@ WAN::Message::Stat::Stat(WAN* wan) : WAN::Message::Up(wan, 512u) {
 	this->header[3]  = PUSH_DATA;
 	JsonObject stat = this->json->createNestedObject("stat");
 	// time | string | UTC 'system' time of the gateway, ISO 8601 'expanded' format
-	char timestamp[32] = {0};
+	// char timestamp[32] = {0};
 	// TODO:: sprintf(timestamp, "%04d-%02d-%02d %02d:%02d:%02d CET", year(), month(), day(), hour(), minute(), second());
-	stat["time"] = String(timestamp);
+	// stat["time"] = String(timestamp);
 	// lati | number | GPS latitude of the gateway in degree (float, N is +)
 	stat["lati"] = wan->settings.lat;
 	// long | number | GPS latitude of the gateway in degree (float, E is +)

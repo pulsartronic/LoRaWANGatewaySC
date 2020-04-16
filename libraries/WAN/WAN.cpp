@@ -2,6 +2,7 @@
 
 WAN::WAN(Node* parent, const char* name) : Node(parent, name) {
 	this->udp = new WiFiUDP();
+	this->schedules = new DS::List<Scheduled*>();
 }
 
 WAN::~WAN() {
@@ -58,6 +59,38 @@ void WAN::loop() {
 	}
 
 	this->rfm->read(this);
+
+	this->emitDownlinks();
+}
+
+void WAN::emitDownlinks() {
+	DS::List<uint32_t>* indices = new DS::List<uint32_t>();
+
+	for (uint32_t i = 0ul; i < this->schedules->length; i++) {
+		Scheduled* scheduled = this->schedules->get(i);
+		uint32_t now = micros();
+		if (now <= scheduled->tmst) {
+			indices->add(i);
+			this->rfm->apply(&scheduled->rfData->settings);
+			this->rfm->send(scheduled->rfData->packet);
+			this->rfm->apply(&this->rfm->settings);
+			this->statistics.txnb += 1u;
+		}
+	}
+
+	for (uint32_t i = 0ul; i < indices->length; i++) {
+		uint32_t index = indices->get(i);
+		Scheduled* scheduled = this->schedules->get(index);
+		this->schedules->removeAt(index);
+		delete scheduled;
+	}
+
+	if (0ul < indices->length) {
+		String scheduleLog = "Sent " + String(indices->length) + " DOWNLINKS, left: " + String(this->schedules->length);
+		this->log(scheduleLog);
+	}
+
+	delete indices;
 }
 
 void WAN::read() {
@@ -87,7 +120,7 @@ void WAN::read() {
 				} break;
 				case PULL_RESP: {
 					//Serial.println("PULL_RESP");
-					this->resp(buffer, size); // SEND DATA TO NODE !!!!!!!!!
+					this->resp(buffer, size);
 					this->lastACK = clock64.mstime();
 				} break;
 				default: {
@@ -109,8 +142,6 @@ void WAN::stat() {
 }
 
 void WAN::pull() {
-	// TODO:: wan->statistics->dwnb += 1u;
-	// TODO:: wan->statistics->txnb += 1u;
 	WAN::Message::Pull* pullMessage = new WAN::Message::Pull(this);
 	this->send(pullMessage);
 	delete pullMessage;
@@ -121,7 +152,7 @@ void WAN::pull() {
  */
 void WAN::onRFMPacket(Data::Packet* packet) {
 	this->statistics.rxnb += 1u;
-	// TODO:: this->statistics->rxok += 1u;
+	this->statistics.rxok += 1u; // TODO:: check CRC ????
 
 	WAN::RFData* data = new WAN::RFData();
 	data->packet = packet;
@@ -133,9 +164,12 @@ void WAN::onRFMPacket(Data::Packet* packet) {
 	rxpkMessage->add(data);
 	this->send(rxpkMessage);
 
-	String logMessage = "UPLINK sent to " +
-		this->settings.host + ":" + String(this->settings.port) +
-		" received:" + String(this->statistics.rxnb);
+	bool connected = (WL_CONNECTED == WiFi.status());
+	if (connected) {
+		this->statistics.rxfw += 1u;
+	}
+
+	String logMessage = "UPLINK :: received:" + String(this->statistics.rxnb) + " forwarded:" + String(this->statistics.rxfw);
 	this->log(logMessage);
 
 	delete rxpkMessage;
@@ -159,13 +193,10 @@ void WAN::send(WAN::Message::Up* up) {
 			const char* jsonchar = jsonstr.c_str();
 			write += this->udp->write(jsonchar, jsonlength);
 			yield();
-			//Serial.println("UP: " + jsonstr);
 		}
 
 		int end = this->udp->endPacket();
 		yield();
-		
-		this->statistics.rxfw += 1u;
 	}
 }
 
@@ -211,11 +242,14 @@ void WAN::resp(uint8_t* buffer, uint16_t bsize) {
 	DynamicJsonDocument doc(512);
 	DeserializationError error = deserializeJson(doc, chardata);
 	if (!error) {
+		this->statistics.dwnb += 1u;
+
 		JsonObject json = doc.as<JsonObject>();
 		JsonObject txpk = json["txpk"];
 
 		bool        imme    = !txpk.containsKey("imme") ? false      : txpk["imme"];
 		uint32_t    tmst    = !txpk.containsKey("tmst") ? micros()   : txpk["tmst"].as<uint32_t>();
+		// uint32_t    tmms    = !txpk.containsKey("tmms") ? 0ul        : txpk["tmms"].as<uint32_t>();
 		double      freq    = !txpk.containsKey("freq") ? 0.0        : txpk["freq"].as<double>();
 		uint16_t    powe    = !txpk.containsKey("powe") ? 0u         : txpk["powe"].as<uint16_t>();
 		String      modu    = !txpk.containsKey("modu") ? "LORA"     : txpk["modu"].as<String>();
@@ -231,7 +265,10 @@ void WAN::resp(uint8_t* buffer, uint16_t bsize) {
 		uint32_t now = micros();
 		bool tooearly = false; // TODO:: unhardcode it
 		if (!tooearly) {
-			bool toolate = false; // TODO:: unhardcode it
+			// TODO:: i've seen that TTN takes too long to send a DOWNLINK to a gateway resulting
+			// in a TOO_LATE error almost a 100% of the times ... i decided to emit them no matter what
+			// it is up to you if you want to prevent this behaviour
+			bool toolate = false;// (tmst < now);
 			if (!toolate) {
 				bool loraModulation = modu.equals("LORA");
 				if (loraModulation) {
@@ -249,29 +286,33 @@ void WAN::resp(uint8_t* buffer, uint16_t bsize) {
 									// TODO:: check sbw
 									// TODO:: check plength
 
-									WAN::RFData* rfmdata = new WAN::RFData();
-									rfmdata->settings.freq.curr = HZ;
-									rfmdata->settings.txpw = powe;
-									rfmdata->settings.sfac = sfac;
-									rfmdata->settings.sbw = sbw;
-									rfmdata->settings.crat = crat;
-									rfmdata->settings.plength = plength;
-									rfmdata->settings.sw = this->rfm->settings.sw;
-									rfmdata->settings.crc = !ncrc;
-									rfmdata->settings.iiq = ipol;
+									WAN::RFData* rfdata = new WAN::RFData();
+									rfdata->settings.freq.curr = HZ;
+									rfdata->settings.txpw = powe;
+									rfdata->settings.sfac = sfac;
+									rfdata->settings.sbw = sbw;
+									rfdata->settings.crat = crat;
+									rfdata->settings.plength = plength;
+									rfdata->settings.sw = this->rfm->settings.sw;
+									rfdata->settings.crc = !ncrc;
+									rfdata->settings.iiq = ipol;
 
 									Data::Packet* packet = new Data::Packet(size);
-									rfmdata->packet = packet;
+									rfdata->packet = packet;
 									// TODO:: check packet size
 									Base64::decode((unsigned char*) data, (unsigned char*) packet->buffer);
 
-									// TODO:: schedule
-									this->rfm->apply(&rfmdata->settings);
-									this->rfm->send(packet);
-									this->rfm->apply(&this->rfm->settings);
-
-									delete rfmdata;
-									delete packet;
+									if (imme) {
+										this->rfm->apply(&rfdata->settings);
+										this->rfm->send(rfdata->packet);
+										this->rfm->apply(&this->rfm->settings);
+										this->statistics.txnb += 1u;
+										delete rfdata->packet;
+										delete rfdata;
+									} else {
+										Scheduled* scheduled = new Scheduled(rfdata, tmst);
+										this->schedules->add(scheduled);
+									}
 								} else {
 									error = "TOO_LATE"; // bad coding rate
 								}
@@ -300,6 +341,10 @@ void WAN::resp(uint8_t* buffer, uint16_t bsize) {
 		logMessage += " codr:" + String(codr);
 		logMessage += " prea:" + String(plength);
 		logMessage += " ipol:" + String(ipol);
+		logMessage += " imme:" + String(imme);
+		// logMessage += " tmms:" + String(tmms);
+		logMessage += " tmst:" + String(tmst);
+		logMessage += " now:" + String(now);
 		logMessage += " error:" + error;
 		this->log(logMessage);
 
@@ -317,9 +362,16 @@ void WAN::getState(JsonObject& wan) {
 void WAN::getPing(JsonObject& response) {
 	JsonObject object = this->rootIT(response);
 	JsonObject mparams = object.createNestedObject("state");
-
 	mparams["now"] = clock64.mstime();
 	mparams["ack"] = this->lastACK;
+
+	JsonObject stats = mparams.createNestedObject("stats");
+	stats["rxnb"] = this->statistics.rxnb;
+	stats["rxok"] = this->statistics.rxok;
+	stats["rxfw"] = this->statistics.rxfw;
+	stats["ackr"] = this->statistics.ackr;
+	stats["dwnb"] = this->statistics.dwnb;
+	stats["txnb"] = this->statistics.txnb;
 }
 
 void WAN::JSON(JsonObject& wan) {

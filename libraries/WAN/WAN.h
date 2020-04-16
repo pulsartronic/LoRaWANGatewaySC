@@ -14,6 +14,7 @@
 #include <ArduinoJson.h>
 #include <Base64.h>
 #include <Node.h>
+#include <DS.h>
 
 #ifndef __WAN__
 #define __WAN__
@@ -63,6 +64,15 @@ class WAN : public RFM::Handler, public Node {
 		float snr = 0.0;
 	};
 
+	class Scheduled {
+		public:
+		RFData* rfData = NULL;
+		uint32_t tmst = 0ul;
+
+		Scheduled(RFData* rfData, uint32_t tmst);
+		virtual ~Scheduled();
+	};
+
 	class Message {
 		public:
 
@@ -102,6 +112,8 @@ class WAN : public RFM::Handler, public Node {
 	Statistics statistics;
 	Settings settings;
 
+	DS::List<Scheduled*>* schedules = NULL;
+
 	uint32_t istat = 180ul * 1000ul; // stat message interval in milliseconds
 	uint64_t lstat = 0ull;
 
@@ -117,7 +129,9 @@ class WAN : public RFM::Handler, public Node {
 	void read();
 	void stat();
 	void pull();
-	void send(WAN::Message::Up* up);
+	void send(WAN::Message::Up* up); // UPLINKS
+	void emitDownlinks(); // DOWNLINKS
+
 	virtual void onRFMPacket(Data::Packet* packet);
 	void resp(uint8_t* buffer, uint16_t size);
 
