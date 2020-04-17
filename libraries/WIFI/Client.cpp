@@ -128,7 +128,8 @@ void WIFI::Client::getState(JsonObject& state) {
 	int dhcp = (DHCP_STOPPED == dhcpstatus) ? 0 : 1;
 
 	state["status"] = (int) WiFi.status();
-	state["ssid"] = this->settings.ssid;
+	state["ssid"] = WiFi.SSID();
+	state["cssid"] = this->settings.ssid;
 	state["bssid"] = WiFi.BSSIDstr();
 	state["mac"] = WiFi.macAddress();
 	state["ip"] = WiFi.localIP().toString();
@@ -145,7 +146,8 @@ void WIFI::Client::getPing(JsonObject& response) {
 	JsonObject object = this->rootIT(response);
 	JsonObject mparams = object.createNestedObject("state");
 	mparams["status"] = (int) WiFi.status();
-	mparams["ssid"] =  WiFi.SSID();
+	mparams["ssid"] = WiFi.SSID();
+	mparams["cssid"] = this->settings.ssid;
 	mparams["ss"] = WiFi.RSSI();
 }
 
@@ -181,9 +183,9 @@ void WIFI::Client::save(JsonObject& params, JsonObject& response, JsonObject& br
 	this->schedule = true;
 	this->scheduled = clock64.mstime();
 
-	bool hasSSID = params.containsKey("s");
-	bool hasPASS = params.containsKey("p");
-	// DEBUG.println("hasSSID: " + String(hasSSID) + " hasPASS: " + String(hasPASS));
+	bool hasSSID = params.containsKey("ssid");
+	bool hasPASS = params.containsKey("pass");
+	DEBUG.println("hasSSID: " + String(hasSSID) + " hasPASS: " + String(hasPASS));
 	this->credentials = hasSSID && hasPASS;
 	if (this->credentials) {
 		this->lphase = clock64.mstime();

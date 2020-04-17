@@ -160,10 +160,8 @@ class Node {
 	}
 
 	virtual void getPing(JsonObject& response) {
-		// JsonObject object = this->rootIT(response);
-		// JsonObject mparams = object.createNestedObject("pong");
-	}
 
+	}
 };
 
 #endif

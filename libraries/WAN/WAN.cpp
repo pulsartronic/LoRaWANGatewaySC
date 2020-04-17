@@ -21,16 +21,7 @@ void WAN::setup() {
 	this->settings.id[5] = MAC_array[3];
 	this->settings.id[6] = MAC_array[4];
 	this->settings.id[7] = MAC_array[5];
-/*
-	this->settings.id[0] = 0x84;
-	this->settings.id[1] = 0x0d;
-	this->settings.id[2] = 0x8e;
-	this->settings.id[3] = 0xFF;
-	this->settings.id[4] = 0xFF;
-	this->settings.id[5] = 0xab;
-	this->settings.id[6] = 0xac;
-	this->settings.id[7] = 0x40;
-*/
+
 	this->readFile();
 	// TODO:: use bound somewhere ... should we check if it is already bound ???
 	uint8_t bound = this->udp->begin(this->settings.port);
