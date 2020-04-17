@@ -1,4 +1,4 @@
-#include <Base64.h>
+#include <Base64M.h>
 
 unsigned char Base64::from_binary(unsigned char v) {
   // Capital letters - 'A' is ascii 65 and base64 0

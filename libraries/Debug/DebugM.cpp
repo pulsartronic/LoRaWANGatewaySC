@@ -1,4 +1,4 @@
-#include <Debug.h>
+#include <DebugM.h>
 
 Debug::Debug() {
 	Serial.begin(9600l);

@@ -1,4 +1,4 @@
-#include <Debug.h>
+#include <DebugM.h>
 
 #define ARDUINOJSON_USE_DOUBLE 1
 #include <ArduinoJson.h>

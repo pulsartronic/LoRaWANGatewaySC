@@ -1,7 +1,7 @@
 #ifndef __LoRaWanGateway__
 #define __LoRaWanGateway__
 
-#include <Debug.h>
+#include <DebugM.h>
 
 #include <Application.h>
 #define ARDUINOJSON_USE_DOUBLE 1

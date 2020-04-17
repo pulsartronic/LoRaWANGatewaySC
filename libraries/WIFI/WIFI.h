@@ -1,4 +1,4 @@
-#include <Debug.h>
+#include <DebugM.h>
 
 #include <Node.h>
 #include <DNSServer.h>
@@ -62,7 +62,7 @@ class WIFI : public Node {
 		public:
 		class Settings {
 			public:
-			String ssid = "Access Point ESP";
+			String ssid = "Access Point ESP dev";
 			String pass = "12345678";
 			bool hidden = false;
 			uint16_t beacon = 100u;
