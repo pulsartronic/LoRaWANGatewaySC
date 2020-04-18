@@ -5,13 +5,30 @@ Instructions on how to make it work can be found here https://www.hackster.io/pu
 # Contribute
 An open source project is a forever Work In Progress. Feel free to be constructive.
 
-RFM default configuration is in libraries/RFM/RFM.h you should change it based on your hardware
-before upload, although you can later change it through the web interface
-
-LoRaWAN default configuration is in libraries/WAN/WAN.h
+RFM default configuration is in:
+```sh
+libraries/RFM/RFM.h
+```
+You should change it based on your hardware before uploading it to your board, although you can later change it through the web interface.
+LoRaWAN default configuration is in:
+```sh
+libraries/WAN/WAN.h
+```
 
 # TODO
-There are many todo's, the biggest is: DOWNLINKS that arrive too late are emitted anyways, TTN sometimes takes too long to send a downlink almost always. If you want to change this behaviour, you can find it in libraries/WAN/WAN.cpp around the line 270
+There are many todo's, the biggest is: CAD (Channel Activity Detection) is not supported yet, if you want
+to implement it, it would be fantastic, if you don't know how, you can open an issue asking for implementation
+in the following repo: https://github.com/sandeepmistry/arduino-LoRa
+
+Another todo: DOWNLINKS that arrive too late are emitted anyways,
+TTN sometimes takes too long to send a downlink resulting in many TOO_LATE errors.
+See protocol: https://github.com/Lora-net/packet_forwarder/blob/master/PROTOCOL.TXT
+If you want to change this behaviour, you can find it in
+```
+libraries/WAN/WAN.cpp
+```
+around the line 270
+
 
 # Credits
 
