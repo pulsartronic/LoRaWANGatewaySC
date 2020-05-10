@@ -1,5 +1,6 @@
 #include <DebugM.h>
 #include <Arduino.h>
+#define ARDUINOJSON_USE_DOUBLE 1
 #include <ArduinoJson.h>
 #include <KeyValueMap.h>
 #include <functional>
@@ -58,7 +59,7 @@ class Node {
 			File file = SPIFFS.open(filename, "r");
 			String jsonSTR = file.readStringUntil('\n');
 			file.close();
-			DynamicJsonDocument jsonDocument(256); // TODO:: unharcode
+			DynamicJsonDocument jsonDocument(1024); // TODO:: unharcode
 			DeserializationError error = deserializeJson(jsonDocument, jsonSTR);
 
 			String log = filename + " : " + jsonSTR;
