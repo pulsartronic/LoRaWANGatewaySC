@@ -8,7 +8,7 @@ void System::NTP::setup() {
 	this->readFile();
 	sntp_stop();
 	sntp_setservername(0, (char*)this->settings.host.c_str());
-	sntp_set_timezone(this->settings.tz);
+	// sntp_set_timezone(this->settings.tz);
 	sntp_init();
 }
 
@@ -19,7 +19,7 @@ void System::NTP::loop() {
 void System::NTP::getState(JsonObject& state) {
 	this->JSON(state);
 	state["host"] = sntp_getservername(0);
-	state["tz"] = sntp_get_timezone();
+	state["tz"] = 0;//sntp_get_timezone();
 	state["now"] = sntp_get_current_timestamp();
 }
 
