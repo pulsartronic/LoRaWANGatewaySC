@@ -42,7 +42,7 @@ void System::getState(JsonObject& system) {
 
 String System::upgrade() {
 	String response = "{}";
-
+/*
 	DEBUG.println("UPGRADING ::::::");
 	String host = F("http://pulsartronic.com/firmware/lorawan/version.php");
 	WiFiClient client;
@@ -93,6 +93,6 @@ String System::upgrade() {
 		response = "{\"error\":12}";
 		//DEBUG.printf("[HTTP} Unable to connect\n");
 	}
-
+*/
 	return response;
 }

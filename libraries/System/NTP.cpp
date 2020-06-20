@@ -7,7 +7,7 @@ System::NTP::NTP(Node* parent, const char* name) : Node(parent, name) {
 void System::NTP::setup() {
 	this->readFile();
 	sntp_stop();
-	sntp_setservername(0, this->settings.host.c_str());
+	sntp_setservername(0, (char*)this->settings.host.c_str());
 	sntp_set_timezone(this->settings.tz);
 	sntp_init();
 }
