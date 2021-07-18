@@ -6,6 +6,9 @@ WIFI::Client::Client(Node* parent, const char* name) : Node(parent, name) {
 
 	Method* network = new Method(std::bind(&WIFI::Client::network, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	this->methods->set("network", network);
+
+	Method* disconnect = new Method(std::bind(&WIFI::Client::disconnect, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	this->methods->set("disconnect", disconnect);
 }
 
 WIFI::Client::~Client() {
@@ -26,11 +29,8 @@ void WIFI::Client::setup() {
 	if (this->settings.ssid.equals("")) {
 		WiFi.begin();
 	} else {
-		DEBUG.println("Connecting to: " + this->settings.ssid);
 		WiFi.begin(this->settings.ssid.c_str(), this->settings.pass.c_str());
 	}
-
-	DEBUG.println("Starting WiFi Client ... OK");
 }
 
 void WIFI::Client::loop() {
@@ -41,7 +41,6 @@ void WIFI::Client::loop() {
 		this->lphase = now;
 		if (!this->settings.ssid.equals("")) {				
 			bool connected = (WL_CONNECTED == WiFi.status());
-			// DEBUG.println("Checking connection: " + String(connected));
 			if (!connected) {
 				this->tryConnection = !this->tryConnection;
 				if (this->tryConnection) {
@@ -84,7 +83,7 @@ void WIFI::Client::loop() {
 
 	if ((WL_CONNECTED == WiFi.status()) && !ipshown) {
 		ipshown = true;
-		DEBUG.println("Connected to : " + this->settings.ssid + " ip: " + WiFi.localIP().toString());
+		Serial.println("Connected to : " + WiFi.BSSIDstr() + " ip: " + WiFi.localIP().toString());
 	}
 }
 
@@ -121,7 +120,9 @@ void WIFI::Client::applyDHCP() {
 	this->ipshown = false;
 }
 
-void WIFI::Client::getState(JsonObject& state) {
+void WIFI::Client::state(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
+	JsonObject object = this->rootIT(response);
+	JsonObject state = object.createNestedObject("state");
 	this->JSON(state);
 
 	dhcp_status dhcpstatus = wifi_station_dhcpc_status();
@@ -176,6 +177,14 @@ void WIFI::Client::JSON(JsonObject& wifi) {
 	wifi["dns2"] = this->settings.dns2;
 }
 
+void WIFI::Client::disconnect(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
+	WiFi.disconnect();
+	yield();
+	this->settings.ssid = "";
+	this->settings.pass = "";
+	this->saveFile();
+}
+
 void WIFI::Client::save(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
 	this->fromJSON(params);
 	this->saveFile();
@@ -185,7 +194,6 @@ void WIFI::Client::save(JsonObject& params, JsonObject& response, JsonObject& br
 
 	bool hasSSID = params.containsKey("ssid");
 	bool hasPASS = params.containsKey("pass");
-	DEBUG.println("hasSSID: " + String(hasSSID) + " hasPASS: " + String(hasPASS));
 	this->credentials = hasSSID && hasPASS;
 	if (this->credentials) {
 		this->lphase = clock64.mstime();

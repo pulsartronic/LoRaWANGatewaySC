@@ -13,7 +13,7 @@ class AESM {
 	AESM(byte* key);
 	static uint16_t calculateCipherLength(int plainLength);
 	static uint16_t calculatePlainLength(int cipherLength);
-	static void getRidOfPadding(byte* plain, unsigned int plainLength);
+	static void getRidOfPadding(byte* plain, uint16_t plainLength);
 	void encrypt(byte* plain, unsigned int plainLength, byte* cipher, unsigned int cipherLength);
 	void decrypt(byte* plain, byte* cipher, unsigned int cipherLength);
 	String encrypt(byte* plain, int plainLength);

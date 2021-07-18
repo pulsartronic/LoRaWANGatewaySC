@@ -14,7 +14,6 @@ WIFI::~WIFI() {
 }
 
 void WIFI::setup() {
-	// WiFiMode_t mode = WiFi.getMode();
 	WiFi.mode(WIFI_AP_STA);
 	this->applySettings();
 
@@ -23,7 +22,7 @@ void WIFI::setup() {
 }
 
 void WIFI::applySettings() {
-	wifi_set_phy_mode((phy_mode_t) this->settings.mode);
+	wifi_set_phy_mode((phy_mode_t) this->settings.bgn);
 };
 
 void WIFI::loop() {
@@ -31,26 +30,20 @@ void WIFI::loop() {
 	this->ap->loop();
 }
 
-void WIFI::getState(JsonObject& state) {
+void WIFI::state(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
+	JsonObject object = this->rootIT(response);
+	JsonObject state = object.createNestedObject("state");
 	this->JSON(state);
-	state["mode"] = (int) wifi_get_phy_mode();
+	state["bgn"] = (int) wifi_get_phy_mode();
+	state["mode"] = WiFi.getMode();
 }
 
 void WIFI::fromJSON(JsonObject& params) {
-	if (params.containsKey("mode")) { this->settings.mode = params["mode"]; }
+	if (params.containsKey("bgn")) { this->settings.bgn = params["bgn"]; }
 }
 
 void WIFI::JSON(JsonObject& wifi) {
+	wifi["bgn"] = this->settings.bgn;
 	wifi["mode"] = this->settings.mode;
 }
-
-void WIFI::save(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
-	this->fromJSON(params);
-	this->saveFile();
-	this->applySettings();
-	JsonObject object = this->rootIT(broadcast);
-	JsonObject mparams = object.createNestedObject("state");
-	this->getState(mparams);
-}
-
 

@@ -21,12 +21,24 @@ void WAN::setup() {
 	this->settings.id[5] = MAC_array[3];
 	this->settings.id[6] = MAC_array[4];
 	this->settings.id[7] = MAC_array[5];
-
+/*
+	this->settings.id[0] = 0x84;
+	this->settings.id[1] = 0x0d;
+	this->settings.id[2] = 0x8e;
+	this->settings.id[3] = 0xFF;
+	this->settings.id[4] = 0xFF;
+	this->settings.id[5] = 0xab;
+	this->settings.id[6] = 0xac;
+	this->settings.id[7] = 0x40;
+*/
 	this->readFile();
+	this->applySettings();
+	Serial.println("Starting WAN system ... OK");
+}
+
+void WAN::applySettings() {
 	// TODO:: use bound somewhere ... should we check if it is already bound ???
 	uint8_t bound = this->udp->begin(this->settings.port);
-
-	DEBUG.println("Starting WAN system ... OK");
 }
 
 void WAN::loop() {
@@ -345,9 +357,11 @@ void WAN::resp(uint8_t* buffer, uint16_t bsize) {
 	}
 }
 
-void WAN::getState(JsonObject& wan) {
-	this->JSON(wan);
-	//rfm["status"] = this->active; // TODO::
+void WAN::state(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
+	JsonObject object = this->rootIT(response);
+	JsonObject state = object.createNestedObject("state");
+	this->JSON(state);
+	// state["status"] = this->active; // TODO::
 }
 
 void WAN::getPing(JsonObject& response) {
@@ -386,18 +400,18 @@ void WAN::JSON(JsonObject& wan) {
 }
 
 byte strtob(const char* str) {
-  byte value = (byte) 0;
-  for (int i = 0; i < 2; i++) {
-    char c = str[i];
-    if ('0' <= c && c <= '9') {
-      value |= (c - '0') << 4 * (1 - i);
-    } else if ('a' <= c && c <= 'f') {
-      value |= (c - 'a' + 10) << c * (1 - i);
-    } else if ('A' <= c && c <= 'F') {
-      value |= (c - 'A' + 10) << 4 * (1 - i);
-    }
-  }
-  return value;
+	byte value = (byte) 0;
+	for (int i = 0; i < 2; i++) {
+		char c = str[i];
+		if ('0' <= c && c <= '9') {
+			value |= (c - '0') << 4 * (1 - i);
+		} else if ('a' <= c && c <= 'f') {
+			value |= (c - 'a' + 10) << c * (1 - i);
+		} else if ('A' <= c && c <= 'F') {
+			value |= (c - 'A' + 10) << 4 * (1 - i);
+		}
+	}
+	return value;
 }
 
 void WAN::fromJSON(JsonObject& params) {
@@ -423,15 +437,5 @@ void WAN::fromJSON(JsonObject& params) {
 	if (params.containsKey("alt")) { this->settings.alt = params["alt"].as<double>(); }
 	if (params.containsKey("istat")) { this->istat = params["istat"].as<uint32_t>(); }
 	if (params.containsKey("ipull")) { this->ipull = params["ipull"].as<uint32_t>(); }
-}
-
-void WAN::save(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
-	this->fromJSON(params);
-	this->saveFile();
-	this->setup();
-	yield();
-	JsonObject object = this->rootIT(broadcast);
-	JsonObject mparams = object.createNestedObject("state");
-	this->getState(mparams);
 }
 

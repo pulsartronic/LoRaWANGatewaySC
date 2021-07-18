@@ -2,13 +2,6 @@
 
 AESM::AESM(byte* key) {
 	memcpy(this->key, key, 32);
-	// randomSeed(analogRead(0)); // RANDOM_REG32 ??
-/*
-	unsigned int b64Length = (4 * (32 + 2) / 3) + 1;
-	unsigned char base64[b64Length];
-	unsigned int base64_length = encode_base64(this->key, 32, base64);
-	this->keystr = String((char*)base64);
-*/
 }
 
 uint16_t AESM::calculateCipherLength(int plainLength) {
@@ -22,7 +15,7 @@ uint16_t AESM::calculatePlainLength(int cipherLength) {
 	return plainLength;
 }
 
-void AESM::getRidOfPadding(byte* plain, unsigned int plainLength) {
+void AESM::getRidOfPadding(byte* plain, uint16_t plainLength) {
 	byte last = plain[plainLength - 1];
 	// get rid of pkcs7 padding
 	if (0 < last && last <= 16) // maybe memset ????
@@ -40,7 +33,7 @@ void AESM::encrypt(byte* plain, unsigned int plainLength, byte* cipher, unsigned
 void AESM::decrypt(byte* plain, byte* cipher, unsigned int cipherLength) {
 	byte iv[N_BLOCK];
 	memcpy(iv, cipher, N_BLOCK);
-	this->aes.do_aes_decrypt(cipher + N_BLOCK, cipherLength, plain, this->key, 256, iv);
+	this->aes.do_aes_decrypt(cipher + N_BLOCK, cipherLength - N_BLOCK, plain, this->key, 256, iv);
 }
 
 String AESM::encrypt(byte* plain, int plainLength) {
@@ -64,7 +57,7 @@ String AESM::decrypt(byte* base64) {
 		binary_length = Base64::decode(base64, cipher);
 		byte plain[cipherLength + 1];
 		plain[cipherLength] = '\0';
-		this->decrypt(plain, cipher, cipherLength);
+		this->decrypt(plain, cipher, cipherLength + N_BLOCK);
 		byte last = plain[cipherLength - 1];
 		// get rid of pkcs7 padding
 		if (0 < last && last <= N_BLOCK)

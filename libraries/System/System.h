@@ -1,10 +1,13 @@
-#include <DebugM.h>
-
 #include <SystemClock.h>
 #include <Node.h>
 #include <ESP8266httpUpdate.h>
 #include <FS.h>
-#include <sntp.h>
+
+#include <coredecls.h>                  // settimeofday_cb()
+#include <time.h>                       // time() ctime()
+#include <sys/time.h>                   // struct timeval
+#include <sntp.h>                       // sntp_servermode_dhcp()
+#include <TZ.h>
 
 #ifndef __System__
 #define __System__
@@ -35,12 +38,18 @@ class System : public Node {
 		static int length;
 	};
 
+	class Settings {
+		public:
+		uint16_t version = 1u;
+		String vurl = "";
+	};
+
 	class NTP : public Node {
 		public:
 		class Settings {
 			public:
-			String host = "nl.pool.ntp.org";
-			int8_t tz = (int8_t) 0;
+			String host = "pool.ntp.org";
+			int16_t tz = 341; // London
 		};
 
 		Settings settings;
@@ -49,11 +58,11 @@ class System : public Node {
 		void setup();
 		void loop();
 
+		virtual void applySettings();
 		virtual void getPing(JsonObject& response);
-		virtual void getState(JsonObject& state);
+		virtual void state(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 		virtual void fromJSON(JsonObject& params);
 		virtual void JSON(JsonObject& params);
-		virtual void save(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 	};
 
 	class ESPS : public Node {
@@ -62,20 +71,20 @@ class System : public Node {
 		virtual ~ESPS();
 		void setup();
 		void loop();
-		String upgrade();
 		virtual void getPing(JsonObject& response);
-		virtual void getState(JsonObject& state);
+		virtual void state(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 	};
 
 	System::NTP* ntp = NULL;
 	System::ESPS* espSystem = NULL;
+	Settings settings;
 
 	System(Node* parent, const char* name);
 	virtual ~System();
 	void setup();
 	void loop();
-	String upgrade();
-	virtual void getState(JsonObject& system);
+	void upgrade(JsonObject& params, JsonObject& response, JsonObject& broadcast);
+	virtual void state(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 };
 
 #endif

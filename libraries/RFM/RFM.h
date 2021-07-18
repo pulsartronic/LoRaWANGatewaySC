@@ -1,5 +1,3 @@
-#include <DebugM.h>
-
 #define ARDUINOJSON_USE_DOUBLE 1
 #include <ArduinoJson.h>
 #include <Node.h>
@@ -20,12 +18,12 @@ class RFM : public Node {
 
 	class Pins {
 		public:
-		int miso = 6;
-		int mosi = 7;
-		int sck = 5;
-		int nss = 0;
-		int rst = 4;
-		int dio[6] = {2, 2, -1, -1, -1, -1};
+		int miso = 12;
+		int mosi = 13;
+		int sck = 14;
+		int nss = 16;
+		int rst = 15;
+		int dio[6] = {4, -1, -1, -1, -1, -1};
 	};
 
 	// DEFAULT RFM CONFIGURATION, YOU SHOULD CHANGE IT BASED IN YOUR HARDWARE
@@ -35,8 +33,8 @@ class RFM : public Node {
 		class Frequency {
 			public:
 			long curr = 868300000l; // current frequency in Hz
-			long min = 858000000l; // min frequency in Hz
-			long max = 878000000l; // max frequency in Hz
+			long min  = 858000000l; // min frequency in Hz
+			long max  = 878000000l; // max frequency in Hz
 		};
 
 		Frequency freq;
@@ -62,10 +60,11 @@ class RFM : public Node {
 	void apply(RFM::Settings* settings);
 	int send(Data::Packet* packet);
 	void read(RFM::Handler* handler);
-	virtual void getState(JsonObject& state);
+
+	virtual void applySettings();
+	virtual void state(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 	virtual void fromJSON(JsonObject& params);
 	virtual void JSON(JsonObject& params);
-	virtual void save(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 };
 
 #endif

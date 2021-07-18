@@ -36,7 +36,7 @@ class WAN : public RFM::Handler, public Node {
 	class Settings {
 		public:
 		uint8_t id[8] = {0};
-		String host = "router.eu.thethings.network";//"192.168.1.134";
+		String host = "router.eu.thethings.network";
 		uint16_t port = 1700u; // 1700 Standard port for TTN
 		String desc = "no description"; // Name of the gateway, used for free form description 
 		String mail = ""; // Owner, used for contact email
@@ -135,11 +135,11 @@ class WAN : public RFM::Handler, public Node {
 	virtual void onRFMPacket(Data::Packet* packet);
 	void resp(uint8_t* buffer, uint16_t size);
 
-	virtual void getState(JsonObject& state);
+	virtual void applySettings();
+	virtual void state(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 	virtual void getPing(JsonObject& response);
 	virtual void fromJSON(JsonObject& params);
 	virtual void JSON(JsonObject& params);
-	virtual void save(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 };
 
 #endif

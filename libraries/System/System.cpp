@@ -1,7 +1,9 @@
 #include <System.h>
 
 int System::Pins::length = 9;
-int System::Pins::VALUE[] = {D0, D1, D2, D3, D4, D5, D6, D7, D8};
+//int System::Pins::VALUE[] = {D0, D1, D2, D3, D4, D5, D6, D7, D8};
+//int System::Pins::VALUE[] = {16,  5,  4,  0,  2, 14, 12, 13, 15};
+
 
 Data::Packet::Packet(uint16_t size) {
 	this->size = size;
@@ -19,6 +21,9 @@ System::System(Node* parent, const char* name) : Node(parent, name) {
 
 	this->espSystem = new ESPS(this, "esps");
 	this->nodes->set(this->espSystem->name, this->espSystem);
+
+	Method* upgrade = new Method(std::bind(&System::upgrade, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	this->methods->set("upgrade", upgrade);
 }
 
 System::~System() {
@@ -35,16 +40,20 @@ void System::loop() {
 	this->espSystem->loop();
 }
 
-void System::getState(JsonObject& system) {
-	system["version"] = String(VERSION);
-	system["up"] = String(clock64.high()) + String(clock64.low);
+void System::state(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
+	JsonObject object = this->rootIT(response);
+	JsonObject state = object.createNestedObject("state");
+	state["version"] = this->settings.version;
+	state["vurl"] = this->settings.vurl;
+	state["up"] = String(clock64.high()) + String(clock64.low);
 }
 
-String System::upgrade() {
-	String response = "{}";
-/*
-	DEBUG.println("UPGRADING ::::::");
-	String host = F("http://pulsartronic.com/firmware/lorawan/version.php");
+void System::upgrade(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
+	JsonObject object = this->rootIT(response);
+	JsonObject upgrading = object.createNestedObject("upgrading");
+
+	//DEBUG.println("UPGRADING ::::::");
+	String host = this->settings.vurl + "/version.php";
 	WiFiClient client;
 	HTTPClient http;
 	if (http.begin(client, host)) {
@@ -53,46 +62,44 @@ String System::upgrade() {
 			if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
 				String payload = http.getString();
 				int last = payload.toInt();
-				DEBUG.println("payload: " + payload);
+				//DEBUG.println("payload: " + payload);
 				if (last > VERSION) {
-					DEBUG.println("Last is greather than actual, UPGRADING !!!");
+					//DEBUG.println("Last is greather than actual, UPGRADING !!!");
 					WiFiClient client;
 					ESPhttpUpdate.setLedPin(LED_BUILTIN, LOW);
 					ESPhttpUpdate.rebootOnUpdate(true);
-					t_httpUpdate_return ret = ESPhttpUpdate.update(client, "http://pulsartronic.com/firmware/lorawan/d1_80mhz_4mb_1mbspifss_latest.bin");
+					t_httpUpdate_return ret = ESPhttpUpdate.update(client, this->settings.vurl + "/d1_80mhz_4mb_1mbspifss_latest.bin");
 					switch (ret) {
 						case HTTP_UPDATE_FAILED:
-							response = "{\"error\":9}";
+							upgrading["error"] = 9;
 							//DEBUG.printf("HTTP_UPDATE_FAILD Error (%d): %s\n", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
 						break;
 						case HTTP_UPDATE_NO_UPDATES:
-							response = "{\"error\":10}";
-							DEBUG.println("HTTP_UPDATE_NO_UPDATES");
+							upgrading["error"] = 10;
+							//DEBUG.println("HTTP_UPDATE_NO_UPDATES");
 						break;
 						case HTTP_UPDATE_OK:
-							response = "{\"error\":false}";
-							DEBUG.println("HTTP_UPDATE_OK");
+							upgrading["error"] = false;
+							//DEBUG.println("HTTP_UPDATE_OK");
 						break;
 						default:
-							response = "{\"error\":15}";
+							upgrading["error"] = 15;
 						break;
 					}
 				} else {
-					response = "{\"error\":14}";
+					upgrading["error"] = 14;
 				}
 			} else {
-				response = "{\"error\":16}";
+				upgrading["error"] = 16;
 			}
 		} else {
-			response = "{\"error\":13}";
-			DEBUG.println(String(httpCode));
+			upgrading["error"] = 13;
+			//DEBUG.println(String(httpCode));
 			//DEBUG.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
 		}
 		http.end();
 	} else {
-		response = "{\"error\":12}";
+		upgrading["error"] = 12;
 		//DEBUG.printf("[HTTP} Unable to connect\n");
 	}
-*/
-	return response;
 }

@@ -1,5 +1,3 @@
-#include <DebugM.h>
-
 #include <Node.h>
 #include <DNSServer.h>
 #include <SystemClock.h>
@@ -52,20 +50,21 @@ class WIFI : public Node {
 		void network(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 
 		virtual void getPing(JsonObject& state);
-		virtual void getState(JsonObject& state);
+		virtual void state(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 		virtual void fromJSON(JsonObject& params);
 		virtual void JSON(JsonObject& params);
 		virtual void save(JsonObject& params, JsonObject& response, JsonObject& broadcast);
+		virtual void disconnect(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 	};
 
 	class AP : public Node {
 		public:
 		class Settings {
 			public:
-			String ssid = "Access Point ESP dev";
-			String pass = "12345678";
+			String ssid = "";
+			String pass = "";
 			bool hidden = false;
-			uint16_t beacon = 100u;
+			uint16_t beacon = 500u;
 			uint16_t maxconn = 1u;
 			uint16_t channel = 1u;
 			String ip = "";
@@ -80,17 +79,17 @@ class WIFI : public Node {
 		virtual ~AP();
 		void setup();
 		void loop();
-		void applySettings();
 
-		virtual void getState(JsonObject& state);
+		virtual void applySettings();
+		virtual void state(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 		virtual void fromJSON(JsonObject& params);
 		virtual void JSON(JsonObject& params);
-		virtual void save(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 	};
 
 	class Settings {
 		public:
-		int mode = PHY_MODE_11B;
+		int mode = WIFI_AP_STA;
+		int bgn = PHY_MODE_11B;
 	};
 
 	Client* client = NULL;
@@ -101,12 +100,11 @@ class WIFI : public Node {
 	virtual ~WIFI();
 	void setup();
 	void loop();
-	void applySettings();
 
-	virtual void getState(JsonObject& state);
+	virtual void applySettings();
+	virtual void state(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 	virtual void fromJSON(JsonObject& params);
 	virtual void JSON(JsonObject& params);
-	virtual void save(JsonObject& params, JsonObject& response, JsonObject& broadcast);
 };
 
 #endif

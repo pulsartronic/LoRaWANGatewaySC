@@ -11,10 +11,10 @@ WIFI::AP::~AP() {
 void WIFI::AP::setup() {
 	this->readFile();
 	this->applySettings();
-	DEBUG.println("Starting Access Point ... OK");
-	DEBUG.println("SSID: " + this->settings.ssid);
-	IPAddress APIP = WiFi.softAPIP();
-	DEBUG.println("IP: " + APIP.toString());
+	//DEBUG.println("Starting Access Point ... OK");
+	//DEBUG.println("SSID: " + this->settings.ssid);
+	//IPAddress APIP = WiFi.softAPIP();
+	//DEBUG.println("IP: " + APIP.toString());
 }
 
 void WIFI::AP::applySettings() {
@@ -51,7 +51,10 @@ void WIFI::AP::loop() {
 	this->dnsServer->processNextRequest();
 }
 
-void WIFI::AP::getState(JsonObject& state) {
+void WIFI::AP::state(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
+	JsonObject object = this->rootIT(response);
+	JsonObject state = object.createNestedObject("state");
+
 	this->JSON(state);
 
 	//struct softap_config {
@@ -84,12 +87,12 @@ void WIFI::AP::getState(JsonObject& state) {
 void WIFI::AP::fromJSON(JsonObject& params) {
 	if (params.containsKey("ssid")) {
 		this->settings.ssid = params["ssid"].as<String>();
-		DEBUG.println("AP: ssid " + this->settings.ssid);
+		//DEBUG.println("AP: ssid " + this->settings.ssid);
 	}
 
 	if (params.containsKey("pass")) {
 		this->settings.pass = params["pass"].as<String>();
-		DEBUG.println("AP: pass " + this->settings.pass);
+		//DEBUG.println("AP: pass " + this->settings.pass);
 	}
 
 	if (params.containsKey("hidden")) { this->settings.hidden = params["hidden"]; }
@@ -111,15 +114,6 @@ void WIFI::AP::JSON(JsonObject& ap) {
 	ap["ip"] = this->settings.ip;
 	ap["gateway"] = this->settings.gateway;
 	ap["netmask"] = this->settings.netmask;
-}
-
-void WIFI::AP::save(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
-	this->fromJSON(params);
-	this->saveFile();
-	this->setup();
-	JsonObject object = this->rootIT(broadcast);
-	JsonObject mparams = object.createNestedObject("state");
-	this->getState(mparams);
 }
 
 

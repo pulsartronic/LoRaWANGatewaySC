@@ -14,6 +14,11 @@ Node::Node(Node* parent, const char* name) : parent(parent) {
 
 Node::~Node() {
 	delete this->nodes;
+	Method* state = this->methods->get("state");
+	delete state;
+	Method* save = this->methods->get("save");
+	delete save;
+	delete this->methods;
 }
 
 

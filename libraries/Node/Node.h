@@ -1,10 +1,8 @@
-#include <DebugM.h>
 #include <Arduino.h>
-#define ARDUINOJSON_USE_DOUBLE 1
 #include <ArduinoJson.h>
 #include <KeyValueMap.h>
-#include <functional>
-#include <FS.h>
+//#include <functional>
+#include <LittleFS.h>
 #include <sntp.h>
 
 #ifndef __Node__
@@ -48,34 +46,27 @@ class Node {
 		String jsonSTR = "";
 		serializeJson(jsonDocument, jsonSTR);
 		String filename = this->filename();
-		File file = SPIFFS.open(filename, "w");
+		File file = LittleFS.open(filename, "w");
 		file.println(jsonSTR);
 		file.close();
 	}
 
 	void readFile() {
 		String filename = this->filename();
-		if (SPIFFS.exists(filename)) {
-			File file = SPIFFS.open(filename, "r");
+		if (LittleFS.exists(filename)) {
+			File file = LittleFS.open(filename, "r");
 			String jsonSTR = file.readStringUntil('\n');
 			file.close();
 			DynamicJsonDocument jsonDocument(1024); // TODO:: unharcode
 			DeserializationError error = deserializeJson(jsonDocument, jsonSTR);
-
-			String log = filename + " : " + jsonSTR;
-			// DEBUG.println(log);
-
 			if (!error) {
-				// Serial1.println("loaded: " + this->name + " : "+ jsonSTR);
 				JsonObject loadedJSON = jsonDocument.as<JsonObject>();
 				this->fromJSON(loadedJSON);
 			} else {
-				DEBUG.println("Node.readFile() : DeserializationError");
-				DEBUG.println(jsonSTR);
+				// debug ?
 			}
 		} else {
-			// String log = "filename does not exists: " + filename;
-			// DEBUG.println(log);
+			// debug ?
 		}
 	}
 
@@ -87,11 +78,27 @@ class Node {
 
 	}
 
+	// TODO:: deprecated
+	virtual void getState(JsonObject& state) {
+		
+	}
+
+	virtual void applySettings() {
+		
+	}
+
+	virtual void save(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
+		this->fromJSON(params);
+		this->saveFile();
+		this->applySettings();
+		yield();
+		this->state(params, broadcast, broadcast);
+	}
+
 	// -->>
 	virtual void oncommand(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
 		String paramsSTR = "";
 		serializeJson(params, paramsSTR);
-		// Serial1.println(paramsSTR);
 		for (JsonPair kv : params) {
 			const char* ckey = kv.key().c_str();
 			JsonObject iparams = kv.value().as<JsonObject>();
@@ -122,19 +129,8 @@ class Node {
 		this->parent->command(command);
 	}
 
-	virtual void getState(JsonObject& state) {
-		
-	}
-
 	virtual void state(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
-		JsonObject object = this->rootIT(response);
-		JsonObject mparams = object.createNestedObject("state");
-		this->getState(mparams);
-		for (uint16_t i = 0; i < this->nodes->length; i++) {
-			KeyValue<Node>* keyValue = this->nodes->keyValues[i];
-			Node* node = keyValue->value;
-			node->state(params, response, broadcast);
-		}
+
 	}
 
 	virtual void log(String& text) {
@@ -147,16 +143,12 @@ class Node {
 		this->command(command);
 	}
 
-	virtual void save(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
-		
-	}
-
-	virtual void ping(JsonObject& response) {
+	virtual void ping(JsonObject& params, JsonObject& response, JsonObject& broadcast) {
 		this->getPing(response);
 		for (uint16_t i = 0; i < this->nodes->length; i++) {
 			KeyValue<Node>* keyValue = this->nodes->keyValues[i];
 			Node* node = keyValue->value;
-			node->ping(response);
+			node->ping(params, response, broadcast);
 		}
 	}
 
