@@ -7,17 +7,16 @@
 
 #include <Arduino.h>
 
-#include <ESP8266WiFi.h>
-#include <ESP8266WiFiMulti.h>
+#include <WiFi.h>
+#include <WiFiMulti.h>
+#include <WiFiClientSecure.h>
 
 #include <ArduinoJson.h>
 
 #include <WebSocketsClient.h>
 #include <SocketIOclient.h>
 
-#include <Hash.h>
-
-ESP8266WiFiMulti WiFiMulti;
+WiFiMulti WiFiMulti;
 SocketIOclient socketIO;
 
 #define USE_SERIAL Serial
@@ -75,19 +74,15 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length)
             break;
         case sIOtype_ACK:
             USE_SERIAL.printf("[IOc] get ack: %u\n", length);
-            hexdump(payload, length);
             break;
         case sIOtype_ERROR:
             USE_SERIAL.printf("[IOc] get error: %u\n", length);
-            hexdump(payload, length);
             break;
         case sIOtype_BINARY_EVENT:
             USE_SERIAL.printf("[IOc] get binary: %u\n", length);
-            hexdump(payload, length);
             break;
         case sIOtype_BINARY_ACK:
             USE_SERIAL.printf("[IOc] get binary ack: %u\n", length);
-            hexdump(payload, length);
             break;
     }
 }
@@ -108,11 +103,6 @@ void setup() {
           USE_SERIAL.flush();
           delay(1000);
       }
-
-    // disable AP
-    if(WiFi.getMode() & WIFI_AP) {
-        WiFi.softAPdisconnect(true);
-    }
 
     WiFiMulti.addAP("SSID", "passpasspass");
 

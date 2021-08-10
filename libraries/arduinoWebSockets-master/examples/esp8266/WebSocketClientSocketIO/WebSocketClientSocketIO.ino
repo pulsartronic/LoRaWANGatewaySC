@@ -29,6 +29,9 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length)
             break;
         case sIOtype_CONNECT:
             USE_SERIAL.printf("[IOc] Connected to url: %s\n", payload);
+
+            // join default namespace (no auto join in Socket.IO V3)
+            socketIO.send(sIOtype_CONNECT, "/");
             break;
         case sIOtype_EVENT:
             USE_SERIAL.printf("[IOc] get event: %s\n", payload);
@@ -85,7 +88,7 @@ void setup() {
     USE_SERIAL.printf("[SETUP] WiFi Connected %s\n", ip.c_str());
 
     // server address, port and URL
-    socketIO.begin("10.11.100.100", 8880);
+    socketIO.begin("10.11.100.100", 8880, "/socket.io/?EIO=4");
 
     // event handler
     socketIO.onEvent(socketIOEvent);
@@ -103,20 +106,20 @@ void loop() {
         // creat JSON message for Socket.IO (event)
         DynamicJsonDocument doc(1024);
         JsonArray array = doc.to<JsonArray>();
-        
+
         // add evnet name
         // Hint: socket.on('event_name', ....
         array.add("event_name");
 
         // add payload (parameters) for the event
         JsonObject param1 = array.createNestedObject();
-        param1["now"] = now;
+        param1["now"] = (uint32_t) now;
 
         // JSON to String (serializion)
         String output;
         serializeJson(doc, output);
 
-        // Send event        
+        // Send event
         socketIO.sendEVENT(output);
 
         // Print JSON for debugging

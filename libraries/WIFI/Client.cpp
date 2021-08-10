@@ -44,7 +44,8 @@ void WIFI::Client::loop() {
 			if (!connected) {
 				this->tryConnection = !this->tryConnection;
 				if (this->tryConnection) {
-					this->log("Trying to connect to " + this->settings.ssid);
+					String tryingMessage = "Trying to connect to " + this->settings.ssid;
+					this->log(tryingMessage);
 					WiFi.setAutoConnect(true);
 					WiFi.setAutoReconnect(true);
 					WiFi.begin(this->settings.ssid.c_str(), this->settings.pass.c_str());
@@ -197,7 +198,8 @@ void WIFI::Client::save(JsonObject& params, JsonObject& response, JsonObject& br
 	this->credentials = hasSSID && hasPASS;
 	if (this->credentials) {
 		this->lphase = clock64.mstime();
-		this->log("WiFi saved, connecting to " + this->settings.ssid);
+		String savedMessage = "WiFi saved, connecting to " + this->settings.ssid;
+		this->log(savedMessage);
 	}
 }
 

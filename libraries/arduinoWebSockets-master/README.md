@@ -1,4 +1,4 @@
-WebSocket Server and Client for Arduino [![Build Status](https://travis-ci.org/Links2004/arduinoWebSockets.svg?branch=master)](https://travis-ci.org/Links2004/arduinoWebSockets)
+WebSocket Server and Client for Arduino [![Build Status](https://github.com/Links2004/arduinoWebSockets/workflows/CI/badge.svg?branch=master)](https://github.com/Links2004/arduinoWebSockets/actions?query=workflow%3ACI+branch%3Amaster)
 ===========================================
 
 a WebSocket Server and Client for Arduino based on RFC6455.
@@ -34,7 +34,9 @@ a WebSocket Server and Client for Arduino based on RFC6455.
 
 ###### Note: ######
 
-  version 2.0 and up is not compatible with AVR/ATmega, check ATmega branch.
+  version 2.0.0 and up is not compatible with AVR/ATmega, check ATmega branch.
+
+  version 2.3.0 has API changes for the ESP8266 BareSSL (may brakes existing code)
 
   Arduino for AVR not supports std namespace of c++.
 
@@ -57,32 +59,34 @@ The mode can be activated in the ```WebSockets.h``` (see WEBSOCKETS_NETWORK_TYPE
 ### High Level Client API ###
 
  - `begin` : Initiate connection sequence to the websocket host.
-```
+```c++
 void begin(const char *host, uint16_t port, const char * url = "/", const char * protocol = "arduino");
 void begin(String host, uint16_t port, String url = "/", String protocol = "arduino");
  ```
  - `onEvent`: Callback to handle for websocket events
 
- ```
+ ```c++
  void onEvent(WebSocketClientEvent cbEvent);
  ```
 
  - `WebSocketClientEvent`: Handler for websocket events
- ```
+ ```c++
  void (*WebSocketClientEvent)(WStype_t type, uint8_t * payload, size_t length)
  ```
 Where `WStype_t type` is defined as:
-  ```
+  ```c++
   typedef enum {
       WStype_ERROR,
       WStype_DISCONNECTED,
       WStype_CONNECTED,
       WStype_TEXT,
       WStype_BIN,
-  	WStype_FRAGMENT_TEXT_START,
-  	WStype_FRAGMENT_BIN_START,
-  	WStype_FRAGMENT,
-  	WStype_FRAGMENT_FIN,
+      WStype_FRAGMENT_TEXT_START,
+      WStype_FRAGMENT_BIN_START,
+      WStype_FRAGMENT,
+      WStype_FRAGMENT_FIN,
+      WStype_PING,
+      WStype_PONG,
   } WStype_t;
   ```
 
