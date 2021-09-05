@@ -1,7 +1,7 @@
 # LoRa WAN Single Channel Gateway for WeMos ESP8266 Arduino
 
 Instructions on how to make it work can be found here https://www.hackster.io/pulsartronic/lorawan-gateway-esp8266-rfm95-arduino-4914a8  
-IMPORTANT: I don't know why, but the latest version of the ESP8266 (v3.0.2 at this time) library does not deliver the .html correctly. It seems to work just fine with v2.7.4
+IMPORTANT: I don't know why, but the latest version of the ESP8266 library (v3.0.2 at this time) does not correctly deliver the .html. It seems to work just fine with v2.7.4
 
 # Contribute
 An open source project is a forever Work In Progress. Feel free to be constructive.

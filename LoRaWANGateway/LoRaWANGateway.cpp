@@ -58,7 +58,7 @@ LoRaWANGateway::LoRaWANGateway() : NetworkNode(NULL, "root") {
 	
 	// ////////////////////////////////////////////////////////////////
 	// TTN configuration
-	this->wan->settings.host     = "router.eu.thethings.network";
+	this->wan->settings.host     = "eu1.cloud.thethings.network";
 	this->wan->settings.port     = 1700u; // 1700 Standard port for TTN
 	this->wan->settings.desc     = "no description"; // Name of the gateway, used for free form description 
 	this->wan->settings.mail     = ""; // Owner, used for contact email
