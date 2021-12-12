@@ -39,7 +39,7 @@ LoRaWANGateway::LoRaWANGateway() : NetworkNode(NULL, "root") {
 	// ////////////////////////////////////////////////////////////////
 	// WiFi Client, Maybe you need to set it here
 	// this->wifi->client->settings.ssid = "";
-	// this->wifi->client->settings.password = "";
+	// this->wifi->client->settings.pass = "";
 	
 	// ////////////////////////////////////////////////////////////////
 	// NTP, Network Time Protocol
